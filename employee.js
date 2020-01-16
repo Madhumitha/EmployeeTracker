@@ -93,7 +93,6 @@ function viewAllEmpByDep() {
             promptUser();
         }
     );
-
 }
 
 function viewAllEmpByMan() {
@@ -110,10 +109,71 @@ function viewAllEmpByMan() {
             promptUser();
         }
     );
-
-
 }
-   
+
+function addEmployee() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'first_name',
+            message: 'What is the employee first name'
+        },
+        {
+            type: 'input',
+            name: 'last_name',
+            message: 'What is the employee last name'   
+        },
+        {
+            type: 'list',
+            name: 'title',
+            message: 'What is the employee designation',
+            choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Accountant', 'Legal Team Lead', 'Lawyer']
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the salary ?',
+            validate: function(value) {
+                if(isNaN(value) === false) {
+                    return true;
+                }
+                return false;
+            }
+        },
+        {
+            type: 'list',
+            name: 'department',
+            message: 'What is the employee department',
+            choices: ['Sales', 'Engineering', 'Finance', 'Legal']
+        },
+        {
+            type: 'list',
+            name: 'manager',
+            message: 'What is the managers id',
+            choices: ['John Doe', 'Mike Chan', 'Ashley Rodriguez', 'Kevin Tupik', '5. Malia Brown', '6. Sarah Lourd', 'Tom Allen']
+        }
+    ])
+    .then(function(answer) {
+
+       // Need to add insert query
+       let addQuery = 'INSERT INTO employee';
+
+
+        db.query(
+            addQuery, function(err, result) {
+                if(err) throw err;
+
+                console.clear();
+                cTable(result);
+
+            console.log('Woah!! I added a new employee to the database');
+            console.log("\n");
+            // re-prompt the user
+            promptUser();
+            }
+        )
+    })
+}
 
 
 
