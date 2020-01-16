@@ -61,7 +61,7 @@ function promptUser() {
                updateEmployeeManager();
            }
            else if(answers.test === 'End') {
-               connection.end();
+               db.end();
            }
         })
 }
