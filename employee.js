@@ -2,7 +2,12 @@ const inquirer = require('inquirer');
 const mysql = require('mysql');
 const cTable = require('console.table');
 
-let queryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, "", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id';
+// Queries 
+
+let queryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, " ", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id';
+let deptQueryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, "", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id ORDER BY dept_id';
+let manQueryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, "", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id WHERE employee.manager_id IS NOT NULL';
+
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -15,15 +20,7 @@ const db = mysql.createConnection({
 db.connect(function(err){
     if(err)
         throw err;
-        //console.log('connected as id' + db.threadId);
-        
-       /* db.query(queryString, function(err, res){
-            if(err)
-                throw err;
-            console.log(res);
-        })
-       */
-      
+    
     promptUser();
 })
 
@@ -70,14 +67,51 @@ function viewAllEmp() {
     db.query(
         queryString, function(err, rows, fields) {
             if(err) throw err;
-            for(let i in rows) {
-                console.table(rows[i]);
-            }
+
+                console.clear();
+                console.table(rows);
+
             console.log('Woah!! After all I can view all employees data');
+            console.log("\n");
             // re-prompt the user
             promptUser();
         }
     );
+}
+
+function viewAllEmpByDep() {
+    db.query(
+        deptQueryString, function(err, rows, fields) {
+            if(err) throw err;
+
+                console.clear();
+                cTable(rows);
+
+            console.log('Woah!! After all I can view all employees data by department');
+            console.log("\n");
+            // re-prompt the user
+            promptUser();
+        }
+    );
+
+}
+
+function viewAllEmpByMan() {
+    db.query(
+        manQueryString, function(err, rows, fields) {
+            if(err) throw err;
+
+                console.clear();
+                cTable(rows);
+
+            console.log('Woah!! After all I can view all employees data by manager');
+            console.log("\n");
+            // re-prompt the user
+            promptUser();
+        }
+    );
+
+
 }
    
 
