@@ -237,7 +237,7 @@ function addEmployee() {
 
     // Remove employee 
 
-    function removeEmployee() {
+function removeEmployee() {
         db.query(
             "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS fullname FROM employee", function(err, rows) {
                 if(err) throw err;
@@ -275,3 +275,71 @@ function addEmployee() {
 })
  }
 
+ // TODO: Update Employee Role
+
+ function updateEmployeeRole() {
+            db.query(
+                "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS fullname, roles.title AS title FROM employee JOIN roles ON employee.role_id = roles.id", function(err, rows) {
+                    if(err) throw err;
+
+                    inquirer.prompt([{
+                        name: 'choice',
+                        type: 'list',
+                        choices: function() {
+                            let option = [];
+                            for(let i=0; i < rows.length; i++) {
+                                option.push(rows[i].fullname);
+                            }
+                            return option;
+                        },
+                        message: "Display all roles"
+                    },
+                    {
+                        name: 'role',
+                        type: 'list',
+                        choices: function() {
+                            let option1 = [];
+                            for(let j=0; j < rows.length; j++) {
+                                option1.push(rows[i].title);
+                            }
+                            return option1;
+                        },
+                        message: "update the chosen role for the chosen person"
+                    }]
+                    )
+                .then(function(answer){
+                    let firstName = answer.choice.split(" ")[0];
+                    let roleID = answer.role;
+                    let chosenItem;
+
+                    console.log(firstName);
+                    console.log(roleID);
+
+                    for(let i=0; i < rows.length; i++) {
+                        if(rows[i].title === answer.choice) {
+                            chosenItem = rows[i];
+                        }
+                    }
+
+                    db.query("UPDATE roles SET ? WHERE ?", 
+                    [
+                        {
+                            title: roleID
+                        },
+                        {
+                            id: chosenItem.id
+                        }
+                    ],    
+                    function(err, result) {
+                        if(err) throw err;
+                        console.clear();
+                        console.table(result);
+
+                // re-prompt the user
+                promptUser();
+                });
+                });
+            })
+        }
+
+ // TODO: Update Employee Manager function

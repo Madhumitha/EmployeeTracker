@@ -30,7 +30,6 @@ CREATE TABLE employee (
     FOREIGN KEY(manager_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
-
 INSERT INTO department(name) 
 VALUES ('Sales'),
        ('Engineering'),
