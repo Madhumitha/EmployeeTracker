@@ -1,13 +1,11 @@
 const inquirer = require('inquirer');
 const mysql = require('mysql');
-const cTable = require('console.table');
 
 // Queries 
 
 let queryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, " ", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id';
 let deptQueryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, "", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id ORDER BY dept_id';
 let manQueryString = 'SELECT employee.id AS id, employee.first_name AS first_name, employee.last_name AS last_name,roles.title AS title, roles.salary AS salary, department.name AS department,CONCAT(e.first_name, "", e.last_name) AS Manager FROM employee JOIN roles ON employee.role_id = roles.id JOIN department ON roles.dept_id=department.id LEFT JOIN employee e ON employee.manager_id=e.id WHERE employee.manager_id IS NOT NULL';
-
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -63,6 +61,8 @@ function promptUser() {
         })
 }
 
+// All Employee Database
+
 function viewAllEmp() {
     db.query(
         queryString, function(err, rows, fields) {
@@ -79,13 +79,15 @@ function viewAllEmp() {
     );
 }
 
+// All Employee By Department
+
 function viewAllEmpByDep() {
     db.query(
         deptQueryString, function(err, rows, fields) {
             if(err) throw err;
 
                 console.clear();
-                cTable(rows);
+                console.table(rows);
 
             console.log('Woah!! After all I can view all employees data by department');
             console.log("\n");
@@ -95,13 +97,15 @@ function viewAllEmpByDep() {
     );
 }
 
+// All Employee By Manager
+
 function viewAllEmpByMan() {
     db.query(
         manQueryString, function(err, rows, fields) {
             if(err) throw err;
 
                 console.clear();
-                cTable(rows);
+                console.table(rows);
 
             console.log('Woah!! After all I can view all employees data by manager');
             console.log("\n");
@@ -110,6 +114,8 @@ function viewAllEmpByMan() {
         }
     );
 }
+
+// Add Employee
 
 function addEmployee() {
     inquirer.prompt([
@@ -130,17 +136,6 @@ function addEmployee() {
             choices: ['Sales Lead', 'Salesperson', 'Lead Engineer', 'Software Engineer', 'Accountant', 'Legal Team Lead', 'Lawyer']
         },
         {
-            type: 'input',
-            name: 'salary',
-            message: 'What is the salary ?',
-            validate: function(value) {
-                if(isNaN(value) === false) {
-                    return true;
-                }
-                return false;
-            }
-        },
-        {
             type: 'list',
             name: 'department',
             message: 'What is the employee department',
@@ -150,31 +145,99 @@ function addEmployee() {
             type: 'list',
             name: 'manager',
             message: 'What is the managers id',
-            choices: ['John Doe', 'Mike Chan', 'Ashley Rodriguez', 'Kevin Tupik', '5. Malia Brown', '6. Sarah Lourd', 'Tom Allen']
+            choices: ['John Doe', 'Mike Chan', 'Ashley Rodriguez', 'Kevin Tupik', 'Malia Brown', 'Sarah Lourd', 'Tom Allen']
         }
     ])
     .then(function(answer) {
 
-       // Need to add insert query
-       let addQuery = 'INSERT INTO employee';
+        let managerID, departmentID, titleID;
 
+        if(answer.department === 'Sales') {
+            departmentID = '1';
+        }
+        else if(answer.department === 'Engineering') {
+            departmentID = '2';
+        }
+        else if(answer.department === 'Finance') {
+            departmentID = '3';
+        }
+        else if(answer.department === 'Legal') {
+            departmentID = '4';
+        }
+
+        if(answer.manager === 'John Doe' ) {
+            managerID = '1';
+        }
+        else if(answer.manager === 'Mike Chan' ) {
+            managerID = '2';
+        }
+        else if(answer.manager === 'Ashley Rodriguez' ) {
+            managerID = '3';
+        }
+        else if(answer.manager === 'Kevin Tupik' ) {
+            managerID = '4';
+        }
+        else if(answer.manager === 'Malia Brown' ) {
+            managerID = '5';
+        }
+        else if(answer.manager === 'Sarah Lourd' ) { 
+            managerID = '6';
+        }
+        else if(answer.manager === 'Tom Allen') {
+            managerID = '7';
+        }
+
+        if(answer.title === 'Sales Lead' ) {
+                titleID = '1';
+        }
+        else if(answer.title === 'Salesperson' ) {
+                titleID = '2';
+        }
+        else if(answer.title === 'Lead Engineer' ) {
+                titleID = '3';
+        }
+        else if(answer.title === 'Software Engineer' ) {
+                titleID = '4';
+        }
+        else if(answer.title === 'Accountant' ) {
+                titleID = '5';
+        }
+        else if(answer.title === 'Legal Team Lead' ) { 
+                titleID = '6';
+        }
+        else if(answer.title === 'Lawyer') {
+                titleID = '7';
+        }
 
         db.query(
-            addQuery, function(err, result) {
-                if(err) throw err;
+            "INSERT INTO employee SET ?",
+            {
+                first_name: answer.first_name,
+                last_name: answer.last_name,
+                role_id: titleID,
+                manager_id: managerID
+            },
+            function(err, result) {
+            if(err) throw err;
+            console.clear();
+        });
 
-                console.clear();
-                cTable(result);
+        db.query(
+            "INSERT INTO roles SET ?",
+            {
+                title: answer.title,
+                salary: answer.salary,
+                dept_id: departmentID
+            },
+            function(err, result) {
+            if(err) throw err;
+            console.clear();
+        });
 
-            console.log('Woah!! I added a new employee to the database');
-            console.log("\n");
-            // re-prompt the user
-            promptUser();
-            }
-        )
-    })
-}
+        console.log('Now you can view the table along with an added employee');
+ 
+        viewAllEmp();
+        });
+    }
 
-
-
-
+  
