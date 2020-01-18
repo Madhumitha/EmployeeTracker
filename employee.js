@@ -15,13 +15,6 @@ const db = mysql.createConnection({
     database: 'employee_db'
 });
 
-db.connect(function(err){
-    if(err)
-        throw err;
-    
-    promptUser();
-})
-
 // Prompt an user for information 
 
 function promptUser() {
