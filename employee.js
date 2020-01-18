@@ -240,4 +240,43 @@ function addEmployee() {
         });
     }
 
-  
+    // Remove employee 
+
+    function removeEmployee() {
+        db.query(
+            "SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS fullname FROM employee", function(err, rows) {
+                if(err) throw err;
+                // Once we have list of employees, user need to choose the employee to be deleted
+                inquirer.prompt({
+                        name: 'choice',
+                        type: 'list',
+                        choices: function() {
+                            let option = [];
+                            for(let i=0; i < rows.length; i++) {
+                                option.push(rows[i].fullname);
+                            }
+                            return option;
+                        },
+                        message: "Delete the chosen employee"
+                    })
+                .then(function(answer){
+                    let firstName = answer.choice.split(" ")[0];
+                    
+                    db.query("DELETE FROM employee WHERE first_name = ?", [firstName],
+                             function(err, result){
+                                 if(err) throw err;
+
+                                 console.clear();
+                                 console.table(result);
+
+                console.log('Woah!! Deleted the chosen employee from the database');
+                console.log("\n");
+                console.log("Now, Removed an employee from the database");
+                viewAllEmp();
+                // re-prompt the user
+                promptUser();
+            });
+    });
+})
+ }
+
