@@ -11,7 +11,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     port: 3306,
     user: 'root',
-    password: '',
+    password: 'm@dhum1th@',
     database: 'employee_db'
 });
 
@@ -214,7 +214,7 @@ function addEmployee() {
             },
             function(err, result) {
             if(err) throw err;
-            console.clear();
+
         });
 
         db.query(
@@ -226,7 +226,7 @@ function addEmployee() {
             },
             function(err, result) {
             if(err) throw err;
-            console.clear();
+            
         });
 
         console.log('Now you can view the table along with an added employee');
@@ -268,14 +268,12 @@ function removeEmployee() {
                 console.log("\n");
                 console.log("Now, Removed an employee from the database");
                 viewAllEmp();
-                // re-prompt the user
-                promptUser();
             });
     });
 })
  }
 
- // TODO: Update Employee Role
+ // TODO: Update Employee Role : This feature is not working, will work on it later
 
  function updateEmployeeRole() {
             db.query(
@@ -300,7 +298,7 @@ function removeEmployee() {
                         choices: function() {
                             let option1 = [];
                             for(let j=0; j < rows.length; j++) {
-                                option1.push(rows[i].title);
+                                option1.push(rows[j].title);
                             }
                             return option1;
                         },
@@ -315,9 +313,10 @@ function removeEmployee() {
                     console.log(firstName);
                     console.log(roleID);
 
-                    for(let i=0; i < rows.length; i++) {
-                        if(rows[i].title === answer.choice) {
-                            chosenItem = rows[i];
+                    for(let i=1; i <= answer.length; i++) {
+                        if(answer[i].fullname === answer.choice) {
+                            chosenItem = i;
+                            console.log(chosenItem);
                         }
                     }
 
@@ -327,11 +326,12 @@ function removeEmployee() {
                             title: roleID
                         },
                         {
-                            id: chosenItem.id
+                            id: chosenItem
                         }
                     ],    
                     function(err, result) {
                         if(err) throw err;
+                        console.log(result.affectedRows);
                         console.clear();
                         console.table(result);
 
